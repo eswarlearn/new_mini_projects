@@ -4,26 +4,43 @@ import { addCustomer as addCustomerAction } from "./slices/CustomerSlice";
 import { useDispatch } from "react-redux";
 
 export default function CustomerAdd() {
-    const[input, setInput] = useState("");
-    // const [customer, setCustomer] = useState([])
+    const [inputs, setInputs] = useState(["", ""]); // Start with two input fields
     const dispatch = useDispatch();
 
-    function addCustomer(){
-        if(input){
-            // setCustomer((preSt)=>[...preSt,input]) //add old data to new
-            // console.log(customer);
-            dispatch(addCustomerAction(input))
-            setInput('');
-            
+    function handleInputChange(index, value) {
+        const newInputs = [...inputs];
+        newInputs[index] = value;
+        setInputs(newInputs);
+
+        // Add a new input field only if ALL existing fields are filled
+        if (newInputs.every(input => input.trim() !== "")) {
+            setInputs([...newInputs, ""]); // Append an empty input
         }
     }
 
-    return <><div>
-    <h3> Add New Customer</h3>
-    <input type="text" value={input} onChange={(e)=>setInput(e.target.value)}/>
-    <button onClick={addCustomer}>add</button>
-</div>
-{/* <CustomerView customer={customer}/> props passing */}
-</>
+    function addAllCustomers() {
+        const filledInputs = inputs.filter(input => input.trim() !== "");
+        if (filledInputs.length === 0) return; // Prevent adding empty fields
 
+        filledInputs.forEach(input => dispatch(addCustomerAction(input)));
+
+        // Reset to two empty input fields
+        setInputs(["", ""]);
+    }
+
+    return (
+        <div>
+            <h3>Add New Customer</h3>
+            {inputs.map((input, index) => (
+                <div key={index}>
+                    <input
+                        type="text"
+                        value={input}
+                        onChange={(e) => handleInputChange(index, e.target.value)}
+                    />
+                </div>
+            ))}
+            <button onClick={addAllCustomers}>Add All</button>
+        </div>
+    );
 }
