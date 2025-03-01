@@ -1,0 +1,43 @@
+Structure For Adding Targets
+
+[{
+    "target_url": "demoadd.com", 
+    "tag": ["demo","demo2"], 
+    "label": "demo", 
+    "source": "manual", 
+    "target_created_date": null,
+    "user_id": 1 
+},
+{
+    "target_url": "demo2.com", 
+    "tag": ["demo","demo2"], 
+    "label": "demo", 
+    "source": "manual", 
+    "target_created_date": null,
+    "user_id": 1 
+}]
+
+
+structure for editing targets
+
+{
+    "target_id": 4,
+    "user_id": 1,
+    "target_url": "demo2new.com",
+    "tag": ["demo123","demo2"], 
+    "label": "demo"
+}
+
+
+Structure for deleting targets 
+
+{
+    "target_id": 4
+}
+
+
+structure for view targets 
+
+{
+    "user_id":1
+}
