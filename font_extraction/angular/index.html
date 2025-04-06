@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Font extraction</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/konva@9/konva.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+  </head>
+  <body>
+    <div ng-app="FontApp" ng-controller="FontCtrl">
+      <select
+        ng-model="selectedFont"
+        ng-options="font for font in fonts"
+        ng-change="changeFont()"
+      ></select>
+      <div id="konva-container"></div>
+    </div>
+  </body>
+  <script>
+    angular
+      .module("FontApp", [])
+      .controller("FontCtrl", function ($scope, $http) {
+        $scope.fonts = [];
+        $scope.selectedFont = null;
+        $scope.loadedFonts = new Set();
+
+        let stage = new Konva.Stage({
+          container: "konva-container",
+          width: 500,
+          height: 200,
+        });
+
+        let layer = new Konva.Layer();
+        let textNode = new Konva.Text({
+          x: 50,
+          y: 50,
+          text: "Hello, World!",
+          fontSize: 30,
+          fontFamily: "Arial",
+          fill: "black",
+        });
+
+        layer.add(textNode);
+        stage.add(layer);
+
+        $scope.changeFont = function () {
+          let font = $scope.selectedFont;
+
+          if ($scope.loadedFonts.has(font)) {
+            applyFont(font);
+          } else {
+            WebFont.load({
+              google: { families: [font] },
+              active: function () {
+                $scope.loadedFonts.add(font);
+                applyFont(font);
+              },
+            });
+          }
+        };
+
+        function applyFont(font) {
+          textNode.fontFamily(font);
+          layer.draw();
+        }
+
+        $http.get("http://localhost:8080/fonts").then(function (response) {
+          $scope.fonts = response.data;
+          $scope.selectedFont = $scope.fonts[0];
+
+          WebFont.load({
+            google: { families: [$scope.selectedFont] },
+            active: function () {
+              $scope.loadedFonts.add($scope.selectedFont);
+              applyFont($scope.selectedFont);
+            },
+          });
+        });
+      });
+  </script>
+</html>

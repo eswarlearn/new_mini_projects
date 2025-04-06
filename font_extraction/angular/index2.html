@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html ng-app="FontApp">
+<head>
+  <title>Font Preview html</title>
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/webfont/1.6.26/webfont.js"></script>
+  <style>
+    .sample-text {
+      font-size: 28px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body ng-controller="FontCtrl">
+
+  <h3>Select a Font</h3>
+  <h1 ng-if="fonts.length > 0">{{ fonts[0] }}</h1>
+
+  <select ng-model="selectedFont" ng-options="font for font in fonts" ng-change="changeFont()"></select>
+
+  <div class="sample-text" ng-style="{ 'font-family': selectedFont }">
+    This is a sample text using {{ selectedFont }}.
+  </div>
+
+  <script>
+    angular.module('FontApp', [])
+      .controller('FontCtrl', function ($scope, $http) {
+        $scope.fonts = [];
+        $scope.selectedFont = null;
+        $scope.loadedFonts = new Set();
+
+        $scope.changeFont = function () {
+          const font = $scope.selectedFont;
+          if ($scope.loadedFonts.has(font)) return;
+
+          WebFont.load({
+            google: { families: [font] },
+            active: function () {
+              $scope.loadedFonts.add(font);
+              $scope.$apply();
+            }
+          });
+        };
+
+        $http.get('http://localhost:8080/fonts').then(function (response) {
+          $scope.fonts = response.data;
+          $scope.selectedFont = $scope.fonts[0];
+
+          WebFont.load({
+            google: { families: [$scope.selectedFont] },
+            active: function () {
+              $scope.loadedFonts.add($scope.selectedFont);
+              $scope.$apply();
+            }
+          });
+        });
+      });
+  </script>
+</body>
+</html>
