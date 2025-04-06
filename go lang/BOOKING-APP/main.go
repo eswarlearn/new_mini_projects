@@ -2,8 +2,8 @@ package main
 
 import (
 	"BOOKING-APP/helper"
+	"BOOKING-APP/models"
 	"fmt"
-	"strconv"
 )
 
 // package variable
@@ -13,7 +13,9 @@ const conferenceTicket = 50
 var remainingTicket uint = conferenceTicket
 
 // var booking []string
-var booking = []string{} // this also used
+// var booking = []string{} // this also used //string
+// var booking = make([]map[string]string, 0) //to map
+var booking = make([]models.UserData, 0) // map to user data
 
 func main() {
 
@@ -82,16 +84,24 @@ func bookingTicket(firstName string, lastName string, email string, userTicket u
 	var fullName = firstName + " " + lastName
 	fmt.Printf("hi %v hom many tickets tou like to book :\n ", fullName)
 
-	booking = append(booking, fullName)
-
 	//map
-	var useData = make(map[string]string)
-	useData["firstName"] = firstName
-	useData["lastName"] = lastName
-	useData["email"] = email
-	useData["userBookingTicket"] = strconv.FormatUint(uint64(userTicket), 10)
+	// var useData = make(map[string]string) //from map to
+	var useData = models.UserData{
+		FirstName:      firstName,
+		LastName:       lastName,
+		Email:          email,
+		NumberOfTicket: userTicket,
+	}
 
-	fmt.Println(useData, " map in function")
+	// map function
+	// useData["firstName"] = firstName
+	// useData["lastName"] = lastName
+	// useData["email"] = email
+	// useData["userBookingTicket"] = strconv.FormatUint(uint64(userTicket), 10)
+
+	booking = append(booking, useData)
+	// booking = append(booking, fullName) //string
+	fmt.Println(useData, " map in function") //to map
 
 	/*array syntax*/
 	// fmt.Printf("full array %v \n", booking)

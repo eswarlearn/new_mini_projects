@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AngularJS Routing Example</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular-route.min.js"></script>
+</head>
+<body ng-app="myApp">
+
+    <h1>AngularJS Routing Example</h1>
+
+    <!-- Navigation Links -->
+    <a href="#!/">Home</a> |
+    <a href="#!/about">About</a> |
+    <a href="#!/contact">Contact</a>
+
+    <!-- View Placeholder -->
+    <div ng-view></div>
+
+    <script>
+        // Define AngularJS Module
+        var app = angular.module("myApp", ["ngRoute"]);
+
+        // Configure Routes
+        app.config(function($routeProvider) {
+            $routeProvider
+                .when("/", {
+                    templateUrl: "home.html",
+                    controller: "HomeController"
+                })
+                .when("/about", {
+                    templateUrl: "angulatJogin.html",
+                    controller: "ContactController"
+                })
+                .when("/contact", {
+                    templateUrl: "name.html",
+                    controller: "ContactController"
+                })
+                .otherwise({
+                    redirectTo: "/"
+                });
+        });
+
+        // Define Controllers
+        app.controller("HomeController", function($scope) {
+            $scope.message = "Welcome to the Home Page!";
+        });
+
+        app.controller("AboutController", function($scope) {
+            $scope.message = "This is the About Page!";
+        });
+
+        app.controller("ContactController", function($scope) {
+            $scope.message = "This is the Contact Page!";
+        });
+    </script>
+
+</body>
+</html>
