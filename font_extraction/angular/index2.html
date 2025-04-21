@@ -42,7 +42,7 @@
           });
         };
 
-        $http.get('http://localhost:8080/fonts').then(function (response) {
+        $http.get('http://localhost:8090/fonts').then(function (response) {
           $scope.fonts = response.data;
           $scope.selectedFont = $scope.fonts[0];
 
