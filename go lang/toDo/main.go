@@ -39,7 +39,6 @@ func listTasks() {
 			status = "✅"
 		}
 		fmt.Printf("%d. %s %s\n", i+1, status, task.Title)
-
 	}
 }
 
