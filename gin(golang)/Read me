@@ -1,0 +1,13 @@
+Welcome to the final task of this unit! Let’s put everything together. You've already experienced the power of handling GET requests, utilizing path and query parameters, and managing to-do items. Now, you'll take full control by implementing a functional server that combines all these elements.
+
+From scratch, you need to implement routes that allow users to get all tasks, retrieve a specific task by its ID, and filter tasks by their completion status. This task will test your understanding and solidify your skills in building RESTful APIs with Gin. Have fun creating a smooth-running to-do application!
+
+
+# Get all todos
+curl -X GET http://localhost:8080/api/todos
+
+# Get completed todos
+curl -X GET "http://localhost:8080/api/todos?completed=true"
+
+# Get a specific todo
+curl -X GET http://localhost:8080/api/todos/2
