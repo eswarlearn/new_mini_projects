@@ -35,3 +35,14 @@ func FilterTodoById(id int) (models.Todo, bool) { //why no []
 
 	return models.Todo{}, false // why {}
 }
+
+func ResetTodos() {
+	todos = []models.Todo{}
+}
+
+func AddTodo(newTodo models.Todo) (models.Todo, error) {
+	newTodo.ID = len(todos) + 1
+	newTodo.Completed = false
+	todos = append(todos, newTodo)
+	return newTodo, nil
+}

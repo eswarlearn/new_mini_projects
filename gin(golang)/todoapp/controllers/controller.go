@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"codesignal.com/todoapp/models"
 	"codesignal.com/todoapp/services"
 	"github.com/gin-gonic/gin"
 )
@@ -40,5 +41,27 @@ func GetTodoById(c *gin.Context) {
 	} else {
 		c.JSON(http.StatusNotFound, gin.H{"error": "Todo not found"})
 	}
+
+}
+
+func AddTodoHandler(c *gin.Context) {
+	var newTodo models.Todo // what is this?
+	if err := c.ShouldBindJSON(&newTodo); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid JSON"})
+		return
+	}
+	createdTodo, err := services.AddTodo(newTodo)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to add todo"})
+		return
+	}
+
+	if newTodo.Title == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Title cannot be empty"})
+		return
+	}
+
+	// c.JSON(http.StatusOK, createdTodo)
+	c.JSON(http.StatusCreated, createdTodo)
 
 }

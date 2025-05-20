@@ -12,5 +12,7 @@ func SetupRoute() *gin.Engine {
 
 	r.GET("/api/todos/:id", controllers.GetTodoById)
 
+	r.POST("/api/todos", controllers.AddTodoHandler)
+
 	return r
 }
