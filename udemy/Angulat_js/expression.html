@@ -7,17 +7,24 @@
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
   </head>
   <body>
-    <div ng-app="myApp" ng-controller="myCtrl">
-      <p>sum: {{5+5}}</p>
-      <h1 ng-style="myStyle">testing</h1>
-      <div ng-init="firstName='Mary';lastName='Com'">
-        <p>The full name is: {{ firstName + " " + lastName }}</p>
+    <div ng-app="myApp">
+      <div ng-controller="myCtrl">
+        <p>sum: {{5+5}}</p>
+        <h1 ng-style="myStyle">testing</h1>
+        <div ng-init="firstName='Mary';lastName='Com'">
+          <p>The full name is: {{ firstName + " " + lastName }}</p>
+        </div>
+        <div ng-init="points=[11,21,31,41,51]">
+          <p>The third result is {{ points[3] }}</p>
+        </div>
+        <div ng-init="person={firstName:'Mary',lastName:'Com'}">
+          <!-- object -->
+          <p>The name is {{ person.lastName }}</p>
+        </div>
       </div>
-      <div ng-init="points=[11,21,31,41,51]">
-        <p>The third result is {{ points[3] }}</p>
-      </div>
-      <div ng-init="person={firstName:'Mary',lastName:'Com'}"> <!-- object -->
-        <p>The name is {{ person.lastName }}</p>
+      <div ng-controller="myCtrl2">
+        <div ng-style="myStyle">{{fNm}}</div>
+        
       </div>
     </div>
   </body>
@@ -28,6 +35,15 @@
       $scope.myStyle = {
         color: "green",
         "background-color": "blue",
+        "font-size": "30px",
+        padding: "30px",
+      };
+    });
+    app.controller("myCtrl2", function ($scope) {
+      $scope.fNm="anbu"
+      $scope.myStyle = {
+        color: "blue",
+        "background-color": "red",
         "font-size": "30px",
         padding: "30px",
       };

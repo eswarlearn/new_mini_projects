@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -60,6 +61,9 @@ func AddTodoHandler(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "Title cannot be empty"})
 		return
 	}
+
+	location := fmt.Sprintf("/api/todos/%d", createdTodo.ID)
+	c.Header("Location", location)
 
 	// c.JSON(http.StatusOK, createdTodo)
 	c.JSON(http.StatusCreated, createdTodo)
