@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Directives</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+
+</head>
+<body>
+       <!--  <div ng-app ="" ng-init ="Mobile">
+        <label for="">Brand: <input type="text" ng-model="Mobile"></label>
+        <p>{{Mobile}}</p>
+    </div>
+     -->
+    <!-- <body ng-app="bindExample"> -->
+<!-- <script>
+angular.module('bindExample', [])
+.controller('ExampleController', ['$scope', function($scope) {
+$scope.name = '';
+}]);
+</script>
+<div ng-controller="ExampleController">
+<label>Enter Name: <input type="text" placeholder="type your name here" ng-model="name"></label><br>
+Welcome <b> <span ng-bind="name"> </b></span> !!!
+</div> -->
+<div ng-app="" ng-init="names= [
+{name: 'Mary', country: 'Denmark'},
+{name: 'John', country: 'Malaysia'},
+{name: 'Kew', country: 'India'}]">
+<p>Looping with objects using <b> ng-repeat </b> directive: </p>
+<ul>
+<li ng-repeat="x in names">
+{{ x.name + ', ' + x.country }} </li>
+</ul>
+</div>
+</body>
+</html>
