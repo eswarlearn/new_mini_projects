@@ -51,7 +51,6 @@ func GetMovie(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
-
 }
 
 func CreateMovie(w http.ResponseWriter, r *http.Request) {
@@ -61,6 +60,23 @@ func CreateMovie(w http.ResponseWriter, r *http.Request) {
 	movie.ID = strconv.Itoa(rand.Intn(10000000))
 	movies = append(movies, movie)
 	json.NewEncoder(w).Encode(movie) // encode the movie to json and write it to the response writer
+}
+func UpdateMovie(w http.ResponseWriter, r *http.Request) {
+	// set the content type to application/json
+	w.Header().Set("Content-Type", "")
+
+	params := mux.Vars(r) // get the route variables
+	for index, item := range movies {
+		if item.ID == params["id"] {
+			movies = append(movies[:index], movies[index+1:]...) // remove the movie from the slice
+			var movie Movie
+			_ = json.NewDecoder(r.Body).Decode(&movie)
+			movie.ID = params["id"]
+			movies = append(movies, movie)
+			json.NewEncoder(w).Encode(movie) // encode the updated movie to json and write it to the response writer
+			return
+		}
+	}
 }
 func main() {
 	r := mux.NewRouter() // create a new router using muc library
