@@ -3,11 +3,12 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gorilla/mux"
 	"log"
 	"math/rand"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
 )
 
 // struct is like a java/js object have key value pairs with their data types
@@ -26,12 +27,12 @@ type Director struct {
 var movies []Movie //slice of Movie structs
 
 func GetMovies(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/Json") // set the content type to application/json
+	w.Header().Set("Content-Type", "application/json") // set the content type to application/json
 	json.NewEncoder(w).Encode(movies)                  // encode the movies slice to json and write it to the response writer
 }
 
 func DeleteMovie(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Contentent-type", "application/json")
+	w.Header().Set("Contentent-Type", "application/json")
 	params := mux.Vars(r) // get the route variables
 	for index, item := range movies {
 		if item.ID == params["id"] {
@@ -43,7 +44,7 @@ func DeleteMovie(w http.ResponseWriter, r *http.Request) {
 }
 
 func GetMovie(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/Json")
+	w.Header().Set("Content-Type", "application/json")
 	params := mux.Vars(r) // get the route variables
 	for _, item := range movies {
 		if item.ID == params["id"] {
@@ -54,7 +55,7 @@ func GetMovie(w http.ResponseWriter, r *http.Request) {
 }
 
 func CreateMovie(w http.ResponseWriter, r *http.Request) {
-	w.Header().Set("Content-Type", "application/Json")
+	w.Header().Set("Content-Type", "application/json")
 	var movie Movie                            // create a new movie variable
 	_ = json.NewDecoder(r.Body).Decode(&movie) // decode the request body to the movie variable
 	movie.ID = strconv.Itoa(rand.Intn(10000000))
