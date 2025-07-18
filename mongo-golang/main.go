@@ -49,6 +49,8 @@ func main() {
 	// TODO: Add CreateUser, DeleteUser using same style
 	r.POST("/user", uc.CreateUser)
 	r.DELETE("/user/:id", uc.DeleteUser)
+	r.GET("/users", uc.GetAllUsers)
+	r.PUT("/user/:id", uc.UpdateUser)
 
 	log.Println("🚀 Server starting at http://localhost:9000")
 	log.Fatal(http.ListenAndServe("localhost:9000", r))

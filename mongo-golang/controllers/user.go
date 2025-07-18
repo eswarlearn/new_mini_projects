@@ -127,6 +127,71 @@ func (uc *UserController) GetUser(w http.ResponseWriter, r *http.Request, p http
 	w.Write(uj)
 }
 
+// GetAllUsers lists all users from MongoDB
+func (uc *UserController) GetAllUsers(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	collection := uc.client.Database("mongo-golang").Collection("users")
+
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		http.Error(w, "Failed to fetch users", http.StatusInternalServerError)
+		return
+	}
+	defer cursor.Close(ctx)
+
+	var users []models.User
+	if err = cursor.All(ctx, &users); err != nil {
+		http.Error(w, "Failed to parse users", http.StatusInternalServerError)
+		return
+	}
+
+	resp, _ := json.Marshal(users)
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	w.Write(resp)
+}
+
+// UpdateUser updates a user by ID
+func (uc *UserController) UpdateUser(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	id := p.ByName("id")
+	objID, err := primitive.ObjectIDFromHex(id)
+	if err != nil {
+		http.Error(w, "Invalid user ID", http.StatusBadRequest)
+		return
+	}
+
+	var updatedData models.User
+	if err := json.NewDecoder(r.Body).Decode(&updatedData); err != nil {
+		http.Error(w, "Invalid JSON", http.StatusBadRequest)
+		return
+	}
+
+	collection := uc.client.Database("mongo-golang").Collection("users")
+
+	// Build the update document
+	update := bson.M{
+		"$set": bson.M{
+			"name":   updatedData.Name,
+			"age":    updatedData.Age,
+			"gender": updatedData.Gender,
+		},
+	}
+
+	result, err := collection.UpdateByID(ctx, objID, update)
+	if err != nil || result.MatchedCount == 0 {
+		http.Error(w, "User not found or update failed", http.StatusNotFound)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintf(w, "✅ Updated user with ID: %s\n", id)
+}
+
 func (uc *UserController) CreateUser(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
