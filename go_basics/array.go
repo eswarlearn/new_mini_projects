@@ -17,5 +17,6 @@ func Array() {
 	}
 
 	fmt.Println(len(a))
+	out.TryFun(10)("example")(3)
 
 }
