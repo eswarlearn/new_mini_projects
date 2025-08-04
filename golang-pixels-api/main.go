@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"time"
 )
 
 const (
@@ -86,12 +85,26 @@ type Video struct {
 }
 
 type PopularVideos struct {
+	Page         int32   `json:"page"`
+	PerPage      int32   `json:"per_page"`
+	TotalResults int32   `json:"total_result"`
+	Url          int32   `json:"url"`
+	Video        []Video `json:"videos"`
 }
 
 type VideoFiles struct {
+	Id       int    `json:"id"`
+	Quantity string `json:"quality"`
+	FileType string `json:"file_type"`
+	Width    int32  `json:"width"`
+	Height   int32  `json:"height"`
+	Link     string `json:"link"`
 }
 
 type VideoPictures struct {
+	Id      int32  `json:"id"`
+	Picture string `json:"picture"`
+	Nr      int32  `json:"nr"`
 }
 
 func (c *Client) SearchPhotos(query string, perPage, page int32) (*SearchResult, error) {
@@ -189,13 +202,52 @@ func (c *Client) GetRandomPhoto() (*Photo, error) {
 }
 
 func (c *Client) SearchVideo(query, perPage, page int) (*VideoSearchResult, error) {
+	url := fmt.Sprintf(VideoAPI+"/search?query=%s&per_page=%d", query, perPage, page)
+	resp, err := c.requestDoWithAuth("GET", url)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
 
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var result VideoSearchResult
+	err = json.Unmarshal(data, &result)
+	return &result, err
 }
 
-func (c *Client) PopularVideo(perPage, page int) (*PopulatVideos, error)
+func (c *Client) PopularVideo(perPage, page int) (*PopularVideos, error) {
+	url := fmt.Sprintf(VideoAPI+"/popular?per_page=%d&page=%d", perPage, page)
+	resp, err := c.requestDoWithAuth("GET", url)
+
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+	data, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+	var result PopularVideos
+	err = json.Unmarshal(data, &result)
+	return &result, err
+}
 
 func (c *Client) GetRandomVideo() (*Video, error) {
+	num, _ := rand.Int(rand.Reader, big.NewInt(1001))
+	randNum := int(num.Int64())
+	result, err := c.PopularVideo(1, randNum)
 
+	if err == nil && len(result.Video) == 1 {
+		return &result.Video[0], nil
+	}
+	return nil, err
+}
+
+func (c *Client) GetRemainingRequestInThisMonth() int32 {
+	return c.RemainingTimes
 }
 
 func main() {
