@@ -201,8 +201,8 @@ func (c *Client) GetRandomPhoto() (*Photo, error) {
 	return nil, err
 }
 
-func (c *Client) SearchVideo(query, perPage, page int) (*VideoSearchResult, error) {
-	url := fmt.Sprintf(VideoAPI+"/search?query=%s&per_page=%d", query, perPage, page)
+func (c *Client) SearchVideo(query string, perPage, page int) (*VideoSearchResult, error) {
+	url := fmt.Sprintf(VideoAPI+"/search?query=%s&per_page=%d&page=%d", query, perPage, page)
 	resp, err := c.requestDoWithAuth("GET", url)
 	if err != nil {
 		return nil, err
@@ -255,7 +255,7 @@ func main() {
 	TOKEN := os.Getenv("PexelsToken")
 	var c = NewClient(TOKEN)
 
-	result, err := c.SearchPhotos("waves", 15, 1)
+	result, err := c.SearchVideo("waves", 15, 1) //c.SearchPhotos("waves", 15, 1)
 
 	if err != nil {
 		fmt.Errorf("Error searching photos: %v", err)
