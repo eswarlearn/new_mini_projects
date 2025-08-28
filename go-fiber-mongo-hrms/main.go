@@ -67,8 +67,27 @@ func main() {
 		err != nil {
 			return c.Status(500).SendString(err.Error())
 		}
+
+		return c.JSON(employees)
 	})
-	app.Post("/employee")
+
+	app.Post("/employee", func(c *fiber.Ctx) error {
+		collection := mg.Db.Collection("employees")
+		employee := new(Employee)
+
+		if err := c.BodyParser(employee); err != nil {
+			return c.Status(400).SendString(err.Error())
+		}
+
+		employee.ID = ""
+
+		insertionResult, err := collection.InsertOne(c.Context(), employee)
+		if err != nil {
+			return c.Status(500).SendString(err.Error())
+		}
+
+		filter := {{Key: "_id",insertionResult.InsertedID		}}
+	})
 	app.Put("/employee/:id")
 	app.Delete("/employee/:id")
 }
