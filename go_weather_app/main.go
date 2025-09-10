@@ -11,46 +11,51 @@ type apiConfigData struct {
 	OpenWeatherMapApiKey string `json:"OpenWeatherMapApiKey"`
 }
 
-// type weatherData struct {
-// 	Name string `json:"name"`
-// 	Main struct {
-// 		Kelvin float64 `json:"temp"`
-// 	} `json:"main"`
-// }
-
 type weatherData struct {
-	Name string `json:"name"`
-	Main struct {
-		Kelvin    float64 `json:"temp"`
-		Humidity  int     `json:"humidity"`
-		Pressure  int     `json:"pressure"`
-		TempMin   float64 `json:"temp_min"`
-		TempMax   float64 `json:"temp_max"`
-		FeelsLike float64 `json:"feels_like"`
-	} `json:"main"`
-	Wind struct {
-		Speed float64 `json:"speed"`
-		Deg   float64 `json:"deg"`
-		Gust  float64 `json:"gust"`
-	} `json:"wind"`
-	Weather []struct {
-		Main        string `json:"main"`
-		Description string `json:"description"`
-		Icon        string `json:"icon"`
-	} `json:"weather"`
-	Clouds struct {
-		All int `json:"all"`
-	} `json:"clouds"`
-	Coord struct {
-		Lon float64 `json:"lon"`
-		Lat float64 `json:"lat"`
-	} `json:"coord"`
-	Visibility int `json:"visibility"`
-	Sys        struct {
-		Country string `json:"country"`
-		Sunrise int64  `json:"sunrise"`
-		Sunset  int64  `json:"sunset"`
-	} `json:"sys"`
+	Name       string     `json:"name"`
+	Main       MainData   `json:"main"`
+	Wind       WindData   `json:"wind"`
+	Weather    []Weather  `json:"weather"`
+	Clouds     CloudsData `json:"clouds"`
+	Coord      CoordData  `json:"coord"`
+	Visibility int        `json:"visibility"`
+	Sys        SysData    `json:"sys"`
+}
+
+type MainData struct {
+	Kelvin    float64 `json:"temp"`
+	Humidity  int     `json:"humidity"`
+	Pressure  int     `json:"pressure"`
+	TempMin   float64 `json:"temp_min"`
+	TempMax   float64 `json:"temp_max"`
+	FeelsLike float64 `json:"feels_like"`
+}
+
+type WindData struct {
+	Speed float64 `json:"speed"`
+	Deg   float64 `json:"deg"`
+	Gust  float64 `json:"gust"`
+}
+
+type Weather struct {
+	Main        string `json:"main"`
+	Description string `json:"description"`
+	Icon        string `json:"icon"`
+}
+
+type CloudsData struct {
+	All int `json:"all"`
+}
+
+type CoordData struct {
+	Lon float64 `json:"lon"`
+	Lat float64 `json:"lat"`
+}
+
+type SysData struct {
+	Country string `json:"country"`
+	Sunrise int64  `json:"sunrise"`
+	Sunset  int64  `json:"sunset"`
 }
 
 func loadApiConfig(filename string) (apiConfigData, error) {
