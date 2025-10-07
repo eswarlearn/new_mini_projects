@@ -14,7 +14,7 @@ func TryFun(v int) func(string) func(int) {
 	fmt.Printf("tryFun: %d\n", v)
 
 	test2 := func(num2 int) int {
-		return num2
+		return num2 + v
 	}
 
 	test3(test2)
