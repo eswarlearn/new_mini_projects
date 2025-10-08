@@ -11,7 +11,8 @@ func main() {
 		fmt.Println("Enter name of student or 'exit' to finish:")
 		fmt.Scan(&name)
 		if name == "exit" {
-			fmt.Println("Exiting the program.", studentMarks)
+			firstCan, mrk := topAvg(studentMarks)
+			fmt.Println("Top average : ", mrk, " by student : ", firstCan)
 			break
 		}
 		stuDetail(studentMarks, name)
@@ -33,4 +34,27 @@ func stuDetail(adDtl map[string][]int, name string) {
 	adDtl[name] = append(adDtl[name], mark)
 	fmt.Println("output test", adDtl)
 
+}
+
+func topAvg(stdDta map[string][]int) (string, float64) {
+	var toperName string
+	var toperAvg float64
+	for name, mark := range stdDta {
+		sum := 0
+		var avg float64
+		for _, value := range mark {
+			sum += value
+		}
+		avg = float64(sum) / float64(len(mark))
+
+		if avg > toperAvg {
+			toperAvg = avg
+			toperName = name
+		} else if avg == toperAvg {
+			toperName += "or" + name
+		}
+
+	}
+
+	return toperName, toperAvg
 }
