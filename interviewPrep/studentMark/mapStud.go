@@ -27,6 +27,7 @@ func stuDetail(adDtl map[string][]int, name string) {
 	fmt.Scan(&mark)
 	if mark < 0 || mark > 100 {
 		fmt.Println("enter valid mark")
+		return // to skip apprnding
 	}
 	if _, exist := adDtl[name]; !exist {
 		adDtl[name] = []int{}
@@ -37,8 +38,8 @@ func stuDetail(adDtl map[string][]int, name string) {
 }
 
 func topAvg(stdDta map[string][]int) (string, float64) {
-	var toperName string
-	var toperAvg float64
+	var topperName string
+	var topperAvg float64
 	for name, mark := range stdDta {
 		sum := 0
 		var avg float64
@@ -47,14 +48,21 @@ func topAvg(stdDta map[string][]int) (string, float64) {
 		}
 		avg = float64(sum) / float64(len(mark))
 
-		if avg > toperAvg {
-			toperAvg = avg
-			toperName = name
-		} else if avg == toperAvg {
-			toperName += "or" + name
+		// if avg > topperAvg {
+		// 	topperAvg = avg
+		// 	topperName = name
+		// } else if avg == topperAvg {
+		// 	topperName += "or" + name
+		// }
+		switch {
+		case avg > topperAvg:
+			topperName = name
+			topperAvg = avg
+		case avg == topperAvg:
+			topperName += " or " + name
 		}
 
 	}
 
-	return toperName, toperAvg
+	return topperName, topperAvg
 }
