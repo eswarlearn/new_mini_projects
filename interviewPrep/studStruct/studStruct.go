@@ -1,24 +1,53 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Prods struct {
 	Prod     string
 	Quantity int64
 }
 
+type StdDtl struct {
+	Name  string
+	Score []int
+}
+
 func main() {
-	sl := &[]Prods{{Prod: "first", Quantity: 2}}
-	var ProdNm string
+	stDt := []StdDtl{}
+	var StdNm string
+	for {
+		fmt.Println("enter your name")
+		fmt.Scan(&StdNm)
+		if strings.ToLower(StdNm) != "exit" {
+			getMark(&stDt, StdNm)
+		} else {
+			fndAvg(&stDt)
+		}
+	}
+}
 
-	for i := 0; i <= 2; i++ {
-		fmt.Println("Enter the product")
-		fmt.Scan(&ProdNm)
-		*sl = append(*sl, Prods{Prod: ProdNm})
+func getMark(stnDt *[]StdDtl, nm string) {
+	var mark int
+	fmt.Println("enter your marl")
+	fmt.Scan(&mark)
 
+	// Check if student already exists
+	for i := range *stnDt {
+		if (*stnDt)[i].Name == nm {
+			(*stnDt)[i].Score = append((*stnDt)[i].Score, mark) // ✅ append mark to existing student
+			fmt.Println("Updated:", (*stnDt)[i])
+			return
+		}
 	}
 
-	fmt.Println("your slice", *sl)
-	fmt.Println("prod", Prods{})
+	// If new student → add to slice
+	*stnDt = append(*stnDt, StdDtl{Name: nm, Score: []int{mark}}) // ✅ fix slice creation
+	fmt.Println("Added:", nm, "->", mark)
+}
+
+func fndAvg(flDet *[]StdDtl) {
 
 }
