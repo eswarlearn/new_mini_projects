@@ -1,0 +1,305 @@
+package main
+
+import (
+	"fmt"
+	"sync"
+	"time"
+)
+
+// CacheItem represents a single cache entry with value and expiration
+type CacheItem struct {
+	Value      interface{}
+	Expiration int64
+}
+
+// Cache represents an in-memory cache with LRU eviction and TTL support
+type Cache struct {
+	items      map[string]*CacheItem
+	mu         sync.RWMutex
+	maxSize    int
+	defaultTTL time.Duration
+	hits       int64
+	misses     int64
+	evictions  int64
+}
+
+// NewCache creates a new cache with the specified max size and default TTL
+func NewCache(maxSize int, defaultTTL time.Duration) *Cache {
+	cache := &Cache{
+		items:      make(map[string]*CacheItem),
+		maxSize:    maxSize,
+		defaultTTL: defaultTTL,
+	}
+
+	// Start cleanup goroutine to remove expired items
+	go cache.cleanupExpired()
+
+	return cache
+}
+
+// Set adds or updates an item in the cache with default TTL
+func (c *Cache) Set(key string, value interface{}) {
+	c.SetWithTTL(key, value, c.defaultTTL)
+}
+
+// SetWithTTL adds or updates an item in the cache with custom TTL
+func (c *Cache) SetWithTTL(key string, value interface{}, ttl time.Duration) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	// Check if cache is full and key doesn't exist
+	if len(c.items) >= c.maxSize {
+		if _, exists := c.items[key]; !exists {
+			// Evict oldest item
+			c.evictOldest()
+		}
+	}
+
+	expiration := time.Now().Add(ttl).UnixNano()
+	if ttl == 0 {
+		expiration = 0 // Never expire
+	}
+
+	c.items[key] = &CacheItem{
+		Value:      value,
+		Expiration: expiration,
+	}
+}
+
+// Get retrieves an item from the cache
+func (c *Cache) Get(key string) (interface{}, bool) {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	item, exists := c.items[key]
+	if !exists {
+		c.misses++
+		return nil, false
+	}
+
+	// Check if item has expired
+	if item.Expiration > 0 && time.Now().UnixNano() > item.Expiration {
+		c.misses++
+		return nil, false
+	}
+
+	c.hits++
+	return item.Value, true
+}
+
+// Delete removes an item from the cache
+func (c *Cache) Delete(key string) bool {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	if _, exists := c.items[key]; exists {
+		delete(c.items, key)
+		return true
+	}
+	return false
+}
+
+// Clear removes all items from the cache
+func (c *Cache) Clear() {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	c.items = make(map[string]*CacheItem)
+	c.hits = 0
+	c.misses = 0
+	c.evictions = 0
+}
+
+// Size returns the current number of items in the cache
+func (c *Cache) Size() int {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+	return len(c.items)
+}
+
+// Keys returns all keys currently in the cache
+func (c *Cache) Keys() []string {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	keys := make([]string, 0, len(c.items))
+	for key := range c.items {
+		keys = append(keys, key)
+	}
+	return keys
+}
+
+// GetStats returns cache statistics
+func (c *Cache) GetStats() map[string]interface{} {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	total := c.hits + c.misses
+	hitRate := float64(0)
+	if total > 0 {
+		hitRate = float64(c.hits) / float64(total) * 100
+	}
+
+	return map[string]interface{}{
+		"hits":      c.hits,
+		"misses":    c.misses,
+		"evictions": c.evictions,
+		"size":      len(c.items),
+		"maxSize":   c.maxSize,
+		"hitRate":   fmt.Sprintf("%.2f%%", hitRate),
+	}
+}
+
+// evictOldest removes the oldest item from the cache (simple LRU)
+func (c *Cache) evictOldest() {
+	var oldestKey string
+	var oldestTime int64 = time.Now().UnixNano()
+
+	// Find the item with oldest expiration time
+	for key, item := range c.items {
+		if item.Expiration > 0 && item.Expiration < oldestTime {
+			oldestTime = item.Expiration
+			oldestKey = key
+		}
+	}
+
+	// If no expiring item found, just delete the first one
+	if oldestKey == "" {
+		for key := range c.items {
+			oldestKey = key
+			break
+		}
+	}
+
+	if oldestKey != "" {
+		delete(c.items, oldestKey)
+		c.evictions++
+	}
+}
+
+// cleanupExpired periodically removes expired items
+func (c *Cache) cleanupExpired() {
+	ticker := time.NewTicker(1 * time.Minute)
+	defer ticker.Stop()
+
+	for range ticker.C {
+		c.mu.Lock()
+		now := time.Now().UnixNano()
+		for key, item := range c.items {
+			if item.Expiration > 0 && now > item.Expiration {
+				delete(c.items, key)
+			}
+		}
+		c.mu.Unlock()
+	}
+}
+
+// Display prints all current cache items
+func (c *Cache) Display() {
+	c.mu.RLock()
+	defer c.mu.RUnlock()
+
+	fmt.Println("\n=== Cache Contents ===")
+	if len(c.items) == 0 {
+		fmt.Println("(empty)")
+	} else {
+		for key, item := range c.items {
+			expStr := "never"
+			if item.Expiration > 0 {
+				remaining := time.Until(time.Unix(0, item.Expiration))
+				expStr = fmt.Sprintf("in %v", remaining.Round(time.Second))
+			}
+			fmt.Printf("  %s: %v (expires %s)\n", key, item.Value, expStr)
+		}
+	}
+	fmt.Println("=====================\n")
+}
+
+func main() {
+	fmt.Println("🚀 Simple Cache Memory Project in Go\n")
+
+	// Create a cache with max 5 items and 30 second default TTL
+	cache := NewCache(5, 30*time.Second)
+
+	// Example 1: Basic Set and Get operations
+	fmt.Println("--- Example 1: Basic Operations ---")
+	cache.Set("user:1", "Alice")
+	cache.Set("user:2", "Bob")
+	cache.Set("product:101", "Laptop")
+
+	if val, found := cache.Get("user:1"); found {
+		fmt.Printf("Found: %v\n", val)
+	}
+
+	if _, found := cache.Get("user:999"); !found {
+		fmt.Println("user:999 not found (cache miss)")
+	}
+
+	cache.Display()
+
+	// Example 2: Custom TTL
+	fmt.Println("--- Example 2: Custom TTL (Short Expiration) ---")
+	cache.SetWithTTL("session:abc", "temporary-token", 3*time.Second)
+	cache.Display()
+
+	fmt.Println("Waiting 4 seconds for expiration...")
+	time.Sleep(4 * time.Second)
+
+	if _, found := cache.Get("session:abc"); !found {
+		fmt.Println("session:abc has expired!")
+	}
+	cache.Display()
+
+	// Example 3: Cache eviction when full
+	fmt.Println("--- Example 3: Cache Eviction (Max Size: 5) ---")
+	cache.Set("item:1", "First")
+	cache.Set("item:2", "Second")
+	cache.Set("item:3", "Third")
+	cache.Display()
+
+	fmt.Println("Adding 6th item (will trigger eviction)...")
+	cache.Set("item:4", "Fourth - Will cause eviction")
+	cache.Display()
+
+	// Example 4: Delete operation
+	fmt.Println("--- Example 4: Delete Operation ---")
+	if cache.Delete("user:1") {
+		fmt.Println("Deleted user:1")
+	}
+	cache.Display()
+
+	// Example 5: Cache statistics
+	fmt.Println("--- Example 5: Cache Statistics ---")
+	// Generate some activity
+	cache.Get("user:2")
+	cache.Get("user:2")
+	cache.Get("missing:1")
+	cache.Get("missing:2")
+	cache.Get("product:101")
+
+	stats := cache.GetStats()
+	fmt.Println("Cache Stats:")
+	for key, value := range stats {
+		fmt.Printf("  %s: %v\n", key, value)
+	}
+
+	// Example 6: List all keys
+	fmt.Println("\n--- Example 6: All Cache Keys ---")
+	keys := cache.Keys()
+	fmt.Printf("Current keys (%d): %v\n", len(keys), keys)
+
+	// Example 7: Never-expiring items
+	fmt.Println("\n--- Example 7: Never-Expiring Items ---")
+	cache.SetWithTTL("config:database", "postgresql://localhost:5432", 0)
+	fmt.Println("Added permanent config item")
+	cache.Display()
+
+	// Final statistics
+	fmt.Println("--- Final Statistics ---")
+	stats = cache.GetStats()
+	for key, value := range stats {
+		fmt.Printf("  %s: %v\n", key, value)
+	}
+
+	fmt.Println("\n✅ Cache demonstration complete!")
+}
