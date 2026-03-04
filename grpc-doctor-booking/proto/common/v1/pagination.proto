@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package common.v1;
+
+option go_package = "github.com/eswar/grpc-doctor-booking/gen/go/common/v1;commonv1";
+
+import "buf/validate/validate.proto";
+
+message PageRequest {
+  int32 page_size = 1 [(buf.validate.field).int32 = {gte: 1, lte: 100}];
+  string page_token = 2;
+}
+
+message PageResponse {
+  string next_page_token = 1;
+}

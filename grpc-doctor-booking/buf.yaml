@@ -1,0 +1,17 @@
+version: v2
+
+modules:
+  - path: proto
+    name: buf.build/eswar/doctor-booking
+
+deps:
+  - buf.build/googleapis/googleapis
+  - buf.build/bufbuild/protovalidate
+
+lint:
+  use:
+    - DEFAULT
+
+breaking:
+  use:
+    - FILE

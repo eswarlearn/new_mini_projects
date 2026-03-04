@@ -1,0 +1,33 @@
+syntax="proto3";
+
+option go_package = "github.com/eswar/50-grpc_golang/proto;proto";
+
+package great_service;
+
+service GreetService{
+    rpc SayHello(NoParam) returns (HelloResponces);
+    
+    rpc SayHelloServerStreaming(NamesList) returns (stream HelloResponces);
+
+    rpc SayHelloClientStreaming(stream HelloRequest) returns (MessagesListi);
+
+    rpc SayHelloBidirectionalStreaming(stream HelloRequest) returns(stream HelloResponces);
+}
+
+message NoParam {};
+
+message HelloRequest{
+    string name =1;
+}
+
+message HelloResponces{
+    string message = 1 ;
+}
+
+message NamesList{
+    repeated string name =1;
+}
+
+message MessagesListi{
+    repeated string messages =1;
+}
