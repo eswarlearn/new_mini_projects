@@ -1,0 +1,2 @@
+# Keep .proto schema files in git; ignore generated Go protobuf stubs
+proto/*.pb.go
