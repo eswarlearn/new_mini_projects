@@ -2,21 +2,21 @@ package main
 
 import (
 	"fmt"
-	"go_basics/out"
+	outTst "go_basics/outAs"
 )
 
 func Array() {
 
-	a := []int{1, 2, 3, 4, 5}
+	a := []int{1, 2, 3, 4, 5, 5}
 
 	for _, v := range a {
 		if v < 3 {
-			out.TryFun(v)
+			outTst.TryFun(v)
 		}
 		fmt.Println(v)
 	}
 
 	fmt.Println(len(a))
-	out.TryFun(10)("example")(3)
+	outTst.TryFun(10)("example")(3)
 
 }

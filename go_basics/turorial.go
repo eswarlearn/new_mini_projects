@@ -17,7 +17,7 @@ func main() {
 		return
 	}
 
-	fmt.Printf("Youtype: %d\n", 2024-input)
+	fmt.Printf("Youtype: %d\n", 2026-input)
 	Array()
 
 }

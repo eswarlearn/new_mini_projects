@@ -22,7 +22,7 @@ func TryFun(v int) func(string) func(int) {
 	returnFun("function returned")()
 
 	Test := func(nm string) func(int) {
-		fmt.Println("nested function")
+		fmt.Println("nested function:", nm)
 
 		doublrNext := func(num int) {
 			fmt.Println("doublrNext:", num*2)

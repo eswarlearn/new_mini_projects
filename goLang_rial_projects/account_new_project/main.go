@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-type Expense struct {
+type indDetail struct {
 	ID          int
 	Amount      float32
 	Category    string
@@ -14,28 +14,29 @@ type Expense struct {
 	CreatedAt   time.Time
 }
 
-var usrArayData []Expense
+var fullDetail []indDetail
 
 func main() {
 	rand.Seed(time.Now().UnixNano())
 
 	IdGeneration := rand.Intn(100)
 
-	var userAmount float32
-	fmt.Print("Enter the amount: ")
-	fmt.Scan(&userAmount)
+	var getAmount float32
+	fmt.Println("Enter ID :")
+	fmt.Scan(&getAmount)
 
-	var userCategory string
-	fmt.Print("Enter the category: ")
-	fmt.Scan(&userCategory)
+	var cat string
+	fmt.Println("Enter Category:")
+	fmt.Scan(&cat)
 
-	var description string
-	fmt.Print("Enter the description: ")
-	fmt.Scan(&description)
+	var dis string
+	fmt.Println("enter discription:")
+	fmt.Scan(&dis)
 
-	userDef := Expense{IdGeneration, userAmount, userCategory, description, time.Now()}
+	usrDet := indDetail{IdGeneration, getAmount, cat, dis, time.Now()}
 
-	usrArayData = append(usrArayData, userDef)
-	fmt.Println(usrArayData)
+	fullDetail = append(fullDetail, usrDet)
+
+	fmt.Println(fullDetail)
 
 }
