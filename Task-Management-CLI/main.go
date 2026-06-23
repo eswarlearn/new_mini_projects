@@ -125,7 +125,7 @@ func deleteTask(id int) {
 		fmt.Printf("no data found for deleting : %v/n", err)
 	}
 	tasks = tempTask
-	os.WriteFile("task.json", data, 0644)
+	os.WriteFile("task.json", data, 0644)//1 ■ Build CLI project
 }
 
 /*🔧 Step 1: Create helper functions
