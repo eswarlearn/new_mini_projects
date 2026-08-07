@@ -1,13 +1,16 @@
 package models
-import(
+
+import (
+	"fmt"
 	"os"
 )
 
 func getFilesName() ([]string, error) {
 	entries, err := os.ReadDir(".gogit/staging")
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to read staging directory: %w", err)
 	}
+
 	var files []string
 	for _, entry := range entries {
 		if !entry.IsDir() {

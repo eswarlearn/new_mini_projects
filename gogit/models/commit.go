@@ -4,44 +4,56 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path/filepath"
 	"time"
 )
 
 type Commit struct {
-	ID        string
-	Message   string
-	Timestamp time.Time
-	Files     []string
+	ID        string    `json:"id"`
+	Message   string    `json:"message"`
+	Timestamp time.Time `json:"timestamp"`
+	Files     []string  `json:"files"`
 }
 
-var msg string
-
-func CommitFunc() {
-
-	if len(os.Args) < 5 {
-		fmt.Println("enter proper commit")
-		return
-	} else {
-		msg = os.Args[4]
+func CommitFunc(message string) error {
+	if message == "" {
+		return fmt.Errorf("commit message cannot be empty")
 	}
-	rendomId := randomID(8)
+
 	files, err := getFilesName()
-
 	if err != nil {
-		fmt.Println(err)
+		return err
+	}
+	if len(files) == 0 {
+		return fmt.Errorf("nothing to commit; add files first")
 	}
 
-	utcTimeStamp := time.Now().UTC()
+	commitID, err := randomID(8)
+	if err != nil {
+		return err
+	}
 
-	cmt := Commit{ID: rendomId, Message: msg, Timestamp: utcTimeStamp, Files: files}
-	data, err := json.Marshal(cmt)
+	commitDir, err := commitFileCreation()
 	if err != nil {
-		fmt.Errorf("commit error %w", err)
+		return err
 	}
-	err = os.WriteFile(`.gogit/commits/commit.json`, data, 0644)
+
+	commit := Commit{
+		ID:        commitID,
+		Message:   message,
+		Timestamp: time.Now().UTC(),
+		Files:     files,
+	}
+	data, err := json.MarshalIndent(commit, "", "  ")
 	if err != nil {
-		fmt.Errorf("commit error %w", err)
+		return fmt.Errorf("failed to encode commit metadata: %w", err)
 	}
-	fmt.Printf("%+v\n changes are commited")
-	
+
+	// Keep metadata with the snapshot so every commit remains inspectable later.
+	if err := os.WriteFile(filepath.Join(commitDir, "commit.json"), data, 0644); err != nil {
+		return fmt.Errorf("failed to write commit metadata: %w", err)
+	}
+
+	fmt.Printf("committed %d file(s) as %s\n", len(files), commitID)
+	return nil
 }

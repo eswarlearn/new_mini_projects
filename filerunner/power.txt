@@ -1,0 +1,2 @@
+ action=shutdown
+ password=7071

@@ -4,36 +4,53 @@ import (
 	"fmt"
 	"gogit-cli/cmd"
 	"gogit-cli/models"
-	"log"
 	"os"
+	"strings"
 )
 
 func main() {
-	if len(os.Args) < 2 {
-		log.Fatal("provide any input")
+	if err := run(os.Args[1:]); err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		os.Exit(1)
 	}
-	command := os.Args[1]
-	switch command {
+}
+
+func run(args []string) error {
+	if len(args) == 0 {
+		return fmt.Errorf("usage: gogit <init|add|commit>")
+	}
+
+	switch args[0] {
 	case "init":
-		cmd.Init()
+		return cmd.Init()
 	case "add":
-		if len(os.Args) < 3 {
-			fmt.Println("usage: gogit add <filename>")
-			return
+		if len(args) != 2 {
+			return fmt.Errorf("usage: gogit add <filename>")
 		}
-		fileName := os.Args[2]
-		err := cmd.Add(fileName)
-		if err != nil {
-			fmt.Println(err)
-		}
+		return cmd.Add(args[1])
 	case "commit":
-		if len(os.Args) < 5 {
-			fmt.Println("enter proper commit message")
+		message, err := parseCommitMessage(args[1:])
+		if err != nil {
+			return err
 		}
-		models.CommitFunc()
-
+		return models.CommitFunc(message)
 	default:
-		fmt.Println("unknown commands")
+		return fmt.Errorf("unknown command %q", args[0])
+	}
+}
+
+func parseCommitMessage(args []string) (string, error) {
+	if len(args) == 0 {
+		return "", fmt.Errorf("usage: gogit commit -m \"message\"")
 	}
 
+	// Accept Git-style commit messages and a plain message to keep the learning CLI friendly.
+	if args[0] == "-m" || args[0] == "--message" {
+		if len(args) < 2 {
+			return "", fmt.Errorf("commit message cannot be empty")
+		}
+		return strings.TrimSpace(strings.Join(args[1:], " ")), nil
+	}
+
+	return strings.TrimSpace(strings.Join(args, " ")), nil
 }

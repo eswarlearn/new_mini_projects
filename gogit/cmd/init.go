@@ -5,24 +5,19 @@ import (
 	"os"
 )
 
-func Init() {
+func Init() error {
 	if _, err := os.Stat(".gogit"); err == nil {
 		fmt.Println("Repository already initialized")
-		return
+		return nil
 	}
 
-	// err := os.Mkdir(".gogit", os.ModePerm)
-
-	err := os.MkdirAll(".gogit/staging", os.ModePerm)
-
-	if err != nil {
-		fmt.Println(err)
-		return
+	if err := os.MkdirAll(".gogit/staging", 0755); err != nil {
+		return fmt.Errorf("failed to create staging directory: %w", err)
 	}
-	err = os.MkdirAll(".gogit/commits", os.ModePerm)
-	if err != nil {
-		fmt.Println(err)
-		return
+	if err := os.MkdirAll(".gogit/commits", 0755); err != nil {
+		return fmt.Errorf("failed to create commits directory: %w", err)
 	}
+
 	fmt.Println("gogit initialized")
+	return nil
 }
