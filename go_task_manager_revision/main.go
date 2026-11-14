@@ -1,125 +1,142 @@
 package main
 
 import (
-	 "bufio"
-    "fmt"
-    "os"
-    "strconv"
-    "strings"
+	"bufio"
+	"fmt"
+	"os"
+	"strconv"
+	"strings"
 
 	"github.com/eswar/rev_project_task_manager/services"
 )
 
-
 func main() {
-    scanner := bufio.NewScanner(os.Stdin)
-    taskService := services.NewTaskService()
+	scanner := bufio.NewScanner(os.Stdin)
+	taskService := services.NewTaskService()
 
-    for {
-        fmt.Println("\n===== TASK MANAGER =====")
-        fmt.Println("1. Create Task")
-        fmt.Println("2. Get All Tasks")
-        fmt.Println("3. Get Task By ID")
-        fmt.Println("4. Update Task Status")
-        fmt.Println("5. Delete Task")
-        fmt.Println("6. Exit")
+	for {
 
-        fmt.Print("Choose option: ")
-        scanner.Scan()
+		fmt.Println("your task list :", taskService)
+		fmt.Println("\n===== TASK MANAGER =====")
+		fmt.Println("1. Create Task")
+		fmt.Println("2. Get All Tasks")
+		fmt.Println("3. Get Task By ID")
+		fmt.Println("4. Update Task Status")
+		fmt.Println("5. Delete Task")
+		fmt.Println("6. Exit")
 
-        choice, err := strconv.Atoi(scanner.Text())
-        if err != nil {
-            fmt.Println("Invalid input")
-            continue
-        }
+		fmt.Print("Choose option: ")
+		scanner.Scan()
 
-        switch choice {
-        case 1:
-            fmt.Print("Title: ")
-            scanner.Scan()
-            title := scanner.Text()
+		choice, err := strconv.Atoi(scanner.Text())
+		if err != nil {
+			fmt.Println("Invalid input")
+			continue
+		}
 
-            fmt.Print("Description: ")
-            scanner.Scan()
-            description := scanner.Text()
+		switch choice {
+		case 1:
+			fmt.Print("Title: ")
+			scanner.Scan()
+			title := scanner.Text()
 
-            fmt.Print("Priority: ")
-            scanner.Scan()
-            priority := scanner.Text()
+			fmt.Print("Description: ")
+			scanner.Scan()
+			description := scanner.Text()
 
-            task := taskService.CreateTask(
-                title, description, priority,
-            )
+			fmt.Print("Priority: ")
+			scanner.Scan()
+			priority := scanner.Text()
 
-            fmt.Println("Created:", task)
+			task := taskService.CreateTask(
+				title, description, priority,
+			)
 
-        case 2:
-            tasks := taskService.GetAllTasks()
+			fmt.Println("Created:", task)
 
-            for _, task := range tasks {
-                fmt.Printf("%+v\n", task)
-            }
+		case 2:
+			tasks := taskService.GetAllTasks()
 
-        case 3:
-            fmt.Print("Enter task ID: ")
-            scanner.Scan()
+			for _, task := range tasks {
+				fmt.Printf("%+v\n", task)
+			}
 
-            id, err := strconv.ParseUint(scanner.Text(), 10, 32)
-            if err != nil {
-                fmt.Println("Invalid ID")
-                continue
-            }
+			// case 3:
+			// 	fmt.Print("Enter task ID: ")
+			// 	scanner.Scan()
 
-            task, found := taskService.GetTaskByID(uint32(id))
-            if !found {
-                fmt.Println("Task not found")
-                continue
-            }
+			// 	id, err := strconv.ParseUint(scanner.Text(), 10, 32)
+			// 	if err != nil {
+			// 		fmt.Println("Invalid ID")
+			// 		continue
+			// 	}
 
-            fmt.Printf("%+v\n", task)
+			// 	task, found := taskService.GetTaskByID(uint32(id))
+			// 	if found != nil{
+			// 		fmt.Println("Task not found")
+			// 		continue
+			// 	}
 
-        case 4:
-            fmt.Print("Enter task ID: ")
-            scanner.Scan()
-            id, err := strconv.ParseUint(scanner.Text(), 10, 32)
-            if err != nil {
-                fmt.Println("Invalid ID")
-                continue
-            }
+			// 	fmt.Printf("%+v\n", task)
+		case 3:
+			fmt.Print("Enter task ID: ")
+			scanner.Scan()
 
-            fmt.Print("Enter status: ")
-            scanner.Scan()
-            status := strings.TrimSpace(scanner.Text())
+			id, err := strconv.ParseUint(scanner.Text(), 10, 32)
+			if err != nil {
+				fmt.Println("Invalid ID:", err)
+				continue
+			}
 
-            if taskService.UpdateTaskStatus(uint32(id), status) {
-                fmt.Println("Status updated")
-            } else {
-                fmt.Println("Invalid status or task ID")
-            }
+			task, err := taskService.GetTaskByID(uint32(id))
+			if err != nil {
+				fmt.Println("Error:", err)
+				continue
+			}
 
-        case 5:
-            fmt.Print("Enter task ID: ")
-            scanner.Scan()
+			fmt.Printf("%+v\n", task)
 
-            id, err := strconv.ParseUint(scanner.Text(), 10, 32)
-            if err != nil {
-                fmt.Println("Invalid ID")
-                continue
-            }
+		case 4:
+			fmt.Print("Enter task ID: ")
+			scanner.Scan()
+			id, err := strconv.ParseUint(scanner.Text(), 10, 32)
+			if err != nil {
+				fmt.Println("Invalid ID")
+				continue
+			}
 
-            if taskService.DeleteTask(uint32(id)) {
-                fmt.Println("Task deleted")
-            } else {
-                fmt.Println("Task not found")
-            }
+			fmt.Print("Enter status: ")
+			scanner.Scan()
+			status := strings.TrimSpace(scanner.Text())
 
-        case 6:
-            fmt.Println("Goodbye!")
-            return
+			if taskService.UpdateTaskStatus(uint32(id), status) {
+				fmt.Println("Status updated")
+			} else {
+				fmt.Println("Invalid status or task ID")
+			}
 
-        default:
-            fmt.Println("Invalid option")
-        }
-    }
+		case 5:
+			fmt.Print("Enter task ID: ")
+			scanner.Scan()
+
+			id, err := strconv.ParseUint(scanner.Text(), 10, 32)
+			if err != nil {
+				fmt.Println("Invalid ID")
+				continue
+			}
+
+			if taskService.DeleteTask(uint32(id)) {
+				fmt.Println("Task deleted")
+			} else {
+				fmt.Println("Task not found")
+			}
+
+		case 6:
+			fmt.Println("Goodbye!")
+			return
+
+		default:
+			fmt.Println("Invalid option")
+		}
+	}
 }
-

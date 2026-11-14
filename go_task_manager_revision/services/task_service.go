@@ -1,6 +1,10 @@
 package services
 
-import "github.com/eswar/rev_project_task_manager/models"
+import (
+	"errors"
+
+	"github.com/eswar/rev_project_task_manager/models"
+)
 
 type TaskService struct {
 	tasks  []models.Task
@@ -36,14 +40,14 @@ func (s *TaskService) GetAllTasks() []models.Task {
 	return append([]models.Task(nil), s.tasks...)
 }
 
-func (s *TaskService) GetTaskByID(id uint32) (models.Task, bool) {
+func (s *TaskService) GetTaskByID(id uint32) (models.Task, error) {
 	for _, task := range s.tasks {
 		if task.ID == id {
-			return task, true
+			return task, nil
 		}
 	}
 
-	return models.Task{}, false
+	return models.Task{}, errors.New("task not found")
 }
 
 func (s *TaskService) UpdateTaskStatus(
